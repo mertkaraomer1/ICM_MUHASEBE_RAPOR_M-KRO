@@ -28,12 +28,49 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            button1 = new Button();
+            button2 = new Button();
+            SuspendLayout();
+            // 
+            // button1
+            // 
+            button1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 162);
+            button1.Location = new Point(102, 121);
+            button1.Name = "button1";
+            button1.Size = new Size(134, 126);
+            button1.TabIndex = 0;
+            button1.Text = "İHRACAT RAPOR";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
+            // button2
+            // 
+            button2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 162);
+            button2.Location = new Point(348, 121);
+            button2.Name = "button2";
+            button2.Size = new Size(134, 126);
+            button2.TabIndex = 1;
+            button2.Text = "YEDEK PARÇA RAPOR";
+            button2.UseVisualStyleBackColor = true;
+            // 
+            // Form1
+            // 
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.Gray;
+            ClientSize = new Size(596, 436);
+            Controls.Add(button2);
+            Controls.Add(button1);
+            Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "YEDEK_PARÇA_SİPARİŞLERİ";
+            Load += Form1_Load;
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private Button button1;
+        private Button button2;
     }
 }
