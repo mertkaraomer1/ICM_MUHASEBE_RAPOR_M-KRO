@@ -13,12 +13,13 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
         public DbSet<IHRACAT_DOSYALARI> IHRACAT_DOSYALARI { get; set; }
         public DbSet<STOKLAR> STOKLAR {  get; set; }
         public DbSet<CARI_HESAP_HAREKETLERI> CARI_HESAP_HAREKETLERI { get; set; }
-        public DbSet<E_FATURA_ISLEMLERI> E_FATURA_ISLEMLERI { get; set; }
+        public DbSet<E_FATURA_DETAYLARI> E_FATURA_ISLEMLERI { get; set; }
+        public DbSet<MUHASEBE_FISLERI> MUHASEBE_FISLERI { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Burada veritabanı bağlantı bilgilerini tanımlayın.
             // Örnek olarak SQL Server kullanalım:
-            string connectionString = "Data Source=SRVMIKRO;Initial Catalog=MikroDB_V16_ICM;Integrated Security=True;Connect Timeout=10;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
+            string connectionString = "Data Source=SRVMIKRO;Initial Catalog=MikroDB_V16_ICM;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
             optionsBuilder.UseSqlServer(connectionString);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,7 +32,8 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             modelBuilder.Entity<IHRACAT_DOSYALARI>().ToTable("IHRACAT_DOSYALARI").HasKey(x => x.ihr_Guid);
             modelBuilder.Entity<STOKLAR>().ToTable("STOKLAR").HasKey(x => x.sto_Guid);
             modelBuilder.Entity<CARI_HESAP_HAREKETLERI>().ToTable("CARI_HESAP_HAREKETLERI").HasKey(x=>x.cha_Guid);
-            modelBuilder.Entity<E_FATURA_ISLEMLERI>().ToTable("E_FATURA_ISLEMLERI").HasKey(x => x.efi_Guid);
+            modelBuilder.Entity<E_FATURA_DETAYLARI>().ToTable("E_FATURA_ISLEMLERI").HasKey(x => x.efd_Guid);
+            modelBuilder.Entity<MUHASEBE_FISLERI>().ToTable("MUHASEBE_FISLERI").HasKey(x => x.fis_Guid);
         }
 
     }

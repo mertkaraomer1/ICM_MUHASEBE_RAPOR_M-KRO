@@ -64,8 +64,14 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            IHRACAT_RAPOR Ihr=new IHRACAT_RAPOR();
+            IHRACAT_RAPOR Ihr = new IHRACAT_RAPOR();
             Ihr.Show();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            FİŞ_EŞLEŞTİRME FFE=new FİŞ_EŞLEŞTİRME();
+            FFE.Show();
         }
     }
 }

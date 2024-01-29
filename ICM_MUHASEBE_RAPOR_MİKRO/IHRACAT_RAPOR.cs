@@ -1,13 +1,8 @@
 ﻿using ICM_MUHASEBE_RAPOR_MİKRO.Context;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using ICM_MUHASEBE_RAPOR_MİKRO.Lists;
 using System.Data;
-using System.Drawing;
+using System.Data.OleDb;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ICM_MUHASEBE_RAPOR_MİKRO
@@ -22,7 +17,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
             dbContext = new MyDbContext();
             InitializeComponent();
         }
-        DataTable table = new DataTable();
+        System.Data.DataTable table = new System.Data.DataTable();
         public void IHRACAT_RAPOR_Load(object sender, EventArgs e)
         {
             SetCircularRegion(button1);
@@ -40,7 +35,8 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
             table.Columns.Add("SATIR_NO");
             table.Columns.Add("GCB_NO");
             table.Columns.Add("GCB_TARİH");
-            table.Columns.Add("Doviz_Cinsi");
+            table.Columns.Add("BELGE NO");
+            table.Columns.Add("DOVİZ CİNSİ");
             table.Columns.Add("GCB_ETGB");
             table.Columns.Add("CARİ_ADİ");
             table.Columns.Add("GTİPKODU");
@@ -68,7 +64,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                     stok => stok.sth_fat_uid,
                     cari => cari.cha_Guid,
                     (stok, cari) => new { Stok = stok, Cari = cari }
-                ).Select(x => new
+                ).Where(x => x.Cari.cha_belge_no.StartsWith("I1E")).Select(x => new
                 {
                     x.Stok.sth_fat_uid,
                     x.Stok.sth_miktar,
@@ -76,7 +72,8 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                     x.Stok.sto_birim1_ad,
                     x.Stok.sth_tutar,
                     x.Cari.cha_meblag,
-                    x.Cari.cha_kod
+                    x.Cari.cha_kod,
+                    x.Cari.cha_belge_no
                 })
                 .Join(
                     dbContext.CARI_HESAPLAR,
@@ -91,8 +88,9 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                     gtipkod = result.StokCari.sto_GtipNo,
                     miktar = result.StokCari.sth_miktar,
                     Birim = result.StokCari.sto_birim1_ad,
-                    Tutar=result.StokCari.sth_tutar,
-                    meblag=result.StokCari.cha_meblag
+                    Tutar = result.StokCari.sth_tutar,
+                    meblag = result.StokCari.cha_meblag,
+                    BelgeNo = result.StokCari.cha_belge_no
                 })
                 .ToList();
 
@@ -116,8 +114,9 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                     GTİPKODU = x.Cari.gtipkod,
                     MİKTAR = x.Cari.miktar,
                     BİRİM = x.Cari.Birim,
-                    TUTAR=x.Cari.Tutar,
-                    DİP_TOPLAM=x.Cari.meblag
+                    TUTAR = x.Cari.Tutar,
+                    DİP_TOPLAM = x.Cari.meblag,
+                    BELGE_NO = x.Cari.BelgeNo
                 })
                 .ToList();
             // DataGridView başlık satırının görünümünü ayarlayın
@@ -126,7 +125,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
             advancedDataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
 
             // Özel bir yazı tipi tanımlayın
-            Font baslikYaziTipi = new Font("Arial", 10, FontStyle.Regular);
+            System.Drawing.Font baslikYaziTipi = new System.Drawing.Font("Arial", 10, FontStyle.Regular);
 
             // DataGridView başlık satırının yazı tipini ayarlayın
             advancedDataGridView1.ColumnHeadersDefaultCellStyle.Font = baslikYaziTipi;
@@ -134,11 +133,11 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
             int sayac = 1;
             foreach (var urun in ihracatraporu)
             {
-                table.Rows.Add(sayac++, urun.GCB_NO, urun.TARİH, urun.Doviz_Cinsi, urun.GCB_ETGB, urun.CARİ_ADİ, urun.GTİPKODU, urun.MİKTAR, urun.BİRİM,urun.TUTAR,urun.DİP_TOPLAM);
+                table.Rows.Add(sayac++, urun.GCB_NO, urun.TARİH, urun.BELGE_NO, urun.Doviz_Cinsi, urun.GCB_ETGB, urun.CARİ_ADİ, urun.GTİPKODU, urun.MİKTAR, urun.BİRİM, urun.TUTAR, urun.DİP_TOPLAM);
             }
             advancedDataGridView1.DataSource = table;
         }
-        private void SetCircularRegion(Button button)
+        private void SetCircularRegion(System.Windows.Forms.Button button)
         {
             GraphicsPath path = new GraphicsPath();
             path.AddEllipse(0, 0, button.Width, button.Height);
@@ -148,7 +147,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             // DataGridView'deki verileri bir DataTable'a kopyalayın
-            DataTable dt = new DataTable();
+            System.Data.DataTable dt = new System.Data.DataTable();
 
             foreach (DataGridViewColumn column in advancedDataGridView1.Columns)
             {
@@ -196,5 +195,8 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                 }
             }
         }
+
+
+
     }
 }

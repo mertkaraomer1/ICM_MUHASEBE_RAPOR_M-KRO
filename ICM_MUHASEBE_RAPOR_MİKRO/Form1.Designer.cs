@@ -50,8 +50,9 @@
             button2.Name = "button2";
             button2.Size = new Size(134, 126);
             button2.TabIndex = 1;
-            button2.Text = "YEDEK PARÇA RAPOR";
+            button2.Text = "FATURA-FİŞ EŞLEŞTİRME";
             button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // Form1
             // 
