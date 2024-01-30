@@ -37,10 +37,11 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             table.Columns.Add("TİCARET BELGE NO");
             table.Columns.Add("FİŞ TARİH");
             table.Columns.Add("BELGE TİPİ");
+            table.Columns.Add("BELGE NO");
 
 
             var result = dbContext.MUHASEBE_FISLERI
-                .Where(x => x.fis_tarih >= selectedDate && x.fis_tarih < selectedDate1 && x.fis_tic_belgeno != "")
+                .Where(x => x.fis_tarih >= selectedDate && x.fis_tarih < selectedDate1)
                 .Join(
                     dbContext.CARI_HESAP_HAREKETLERI,
                     fis => fis.fis_tic_belgeno,
@@ -57,6 +58,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                 .ToList();
 
 
+
             // DataGridView başlık satırının görünümünü ayarlayın
             advancedDataGridView1.EnableHeadersVisualStyles = false;
             advancedDataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.DimGray;
@@ -67,13 +69,30 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
 
             // DataGridView başlık satırının yazı tipini ayarlayın
             advancedDataGridView1.ColumnHeadersDefaultCellStyle.Font = baslikYaziTipi;
-
             int sayac = 1;
             foreach (var urun in result)
             {
-                table.Rows.Add(sayac++, urun.fis_tic_belgeno, urun.fis_tarih, urun.cha_evrak_tip.ToString("ALIŞ FATURASI"));
+                var matchedProject = FAAturaList.FirstOrDefault(sip => sip.BELGE_NO == urun.fis_tic_belgeno);
+
+                table.Rows.Add(sayac++, urun.fis_tic_belgeno, (matchedProject != null) ? matchedProject.TARİH:"YOK", (matchedProject != null) ? matchedProject.BELGE_TÜRÜ : "YOK", (matchedProject != null) ? matchedProject.BELGE_NO : "YOK");
             }
+
             advancedDataGridView1.DataSource = table;
+            for (int i = 0; i < advancedDataGridView1.Rows.Count; i++)
+            {
+                DataGridViewRow row = advancedDataGridView1.Rows[i];
+                string belgeNo = row.Cells[4].Value.ToString();
+
+                // Eşleşen satırları yeşil yap
+                if (belgeNo == "YOK")
+                {
+                    foreach (DataGridViewCell cell in row.Cells)
+                    {
+                        cell.Style.BackColor = Color.Red;
+                    }
+                }
+            }
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -88,34 +107,36 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                 // seçtiğimiz excel'in tam yolu
                 string tamYol = file.FileName;
 
-                //Excel bağlantı adresi
+                // Excel bağlantı adresi
                 string baglantiAdresi = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + tamYol + ";Extended Properties='Excel 12.0;IMEX=1;'";
 
-                //bağlantı 
+                // bağlantı 
                 using (OleDbConnection baglanti = new OleDbConnection(baglantiAdresi))
                 {
-                    //tüm verileri seçmek için select sorgumuz. Sayfa1 olan kısmı Excel'de hangi sayfayı açmak istiyorsanız orayı yazabilirsiniz.
+                    // tüm verileri seçmek için select sorgumuz. Sayfa1 olan kısmı Excel'de hangi sayfayı açmak istiyorsanız orayı yazabilirsiniz.
                     OleDbCommand komut = new OleDbCommand("Select * From [" + textBox1.Text + "$]", baglanti);
 
-                    //bağlantıyı açıyoruz.
+                    // bağlantıyı açıyoruz.
                     baglanti.Open();
 
-                    //Gelen verileri DataAdapter'e atıyoruz.
+                    // Gelen verileri DataAdapter'e atıyoruz.
                     using (OleDbDataAdapter da = new OleDbDataAdapter(komut))
                     {
-                        //Grid'imiz için bir DataTable oluşturuyoruz.
+                        // Grid'imiz için bir DataTable oluşturuyoruz.
                         DataTable data = new DataTable();
 
-                        //DataAdapter'da ki verileri data adındaki DataTable'a dolduruyoruz.
+                        // DataAdapter'da ki verileri data adındaki DataTable'a dolduruyoruz.
                         da.Fill(data);
 
+                        // FAAturaList'i temizle, çünkü yeni verileri ekleyeceğiz
+                        FAAturaList.Clear();
 
                         foreach (DataRow row in data.Rows)
                         {
                             Faturalar fatura = new Faturalar
                             {
                                 TARİH = row["TARİH"].ToString(),
-                                BELGE_TURU = row["BELGE TURU"].ToString(),
+                                BELGE_TÜRÜ = row["BELGE TÜRÜ"].ToString(),
                                 BELGE_NO = row["BELGE NO"].ToString()
                             };
 
@@ -131,6 +152,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                 // Hata alırsak ekrana bastırıyoruz.
                 MessageBox.Show(ex.Message);
             }
+
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)

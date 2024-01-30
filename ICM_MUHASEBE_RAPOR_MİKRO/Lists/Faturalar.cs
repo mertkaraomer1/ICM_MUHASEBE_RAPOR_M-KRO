@@ -12,11 +12,11 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Lists
         [Description("TARİH")]
         public string TARİH { get; set; }
 
-        [Description("BELGE TÜRÜ ")]
-        public string BELGE_TURU  { get; set; }
+        [Description("BELGE TÜRÜ")]
+        public string BELGE_TÜRÜ  { get; set; }
 
         [Description("BELGE NO")]
-        public string BELGE_NO { get; set; }
+        public string? BELGE_NO { get; set; }
 
     }
 }
