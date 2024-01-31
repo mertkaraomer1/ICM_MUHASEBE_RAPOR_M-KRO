@@ -70,8 +70,23 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
 
         private void button2_Click(object sender, EventArgs e)
         {
-            FİŞ_EŞLEŞTİRME FFE=new FİŞ_EŞLEŞTİRME();
+            FİŞ_EŞLEŞTİRME FFE = new FİŞ_EŞLEŞTİRME();
             FFE.Show();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                // Ana form kapatıldığında tüm uygulamayı kapat
+                Application.Exit();
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            FİNANS_RAPORU FR=new FİNANS_RAPORU();
+            FR.Show();
         }
     }
 }
