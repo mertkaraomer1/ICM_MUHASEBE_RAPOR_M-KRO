@@ -1,14 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Data;
 using ICM_MUHASEBE_RAPOR_MİKRO.Lists;
 using System.Data.OleDb;
 
@@ -38,8 +28,8 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             table.Columns.Add("FİŞ TARİH");
             table.Columns.Add("BELGE TİPİ");
             table.Columns.Add("BELGE NO");
-
-
+            table.Columns.Add("MUHASEBE FİŞ MEBLAĞ");
+            table.Columns.Add("E-FATURA MEBLAĞ");
             var result = dbContext.MUHASEBE_FISLERI
                 .Where(x => x.fis_tarih >= selectedDate && x.fis_tarih < selectedDate1)
                 .Join(
@@ -53,9 +43,19 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                 {
                     joined.Fis.fis_tic_belgeno,
                     joined.Fis.fis_tarih,
-                    joined.Cha.cha_evrak_tip
-                }).Distinct()
+                    joined.Cha.cha_evrak_tip,
+                    joined.Fis.fis_meblag0,
+                    joined.Fis.fis_tic_evrak_sira
+                })
+                .GroupBy(x => x.fis_tic_belgeno)
+                .Select(group => new
+                {
+                    fis_tic_belgeno = group.Key,
+                    totalMeblag = Math.Round(group.Sum(x => x.fis_meblag0 > 0 ? x.fis_meblag0 : 0.0), 2)
+                })
                 .ToList();
+
+
 
 
 
@@ -72,9 +72,9 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             int sayac = 1;
             foreach (var urun in result)
             {
-                var matchedProject = FAAturaList.FirstOrDefault(sip => sip.BELGE_NO == urun.fis_tic_belgeno);
+                var matchedProject = FAAturaList.FirstOrDefault(sip => sip.EFatura_ID == urun.fis_tic_belgeno);
 
-                table.Rows.Add(sayac++, urun.fis_tic_belgeno, (matchedProject != null) ? matchedProject.TARİH:"YOK", (matchedProject != null) ? matchedProject.BELGE_TÜRÜ : "YOK", (matchedProject != null) ? matchedProject.BELGE_NO : "YOK");
+                table.Rows.Add(sayac++, urun.fis_tic_belgeno, (matchedProject != null) ? matchedProject.Belge_tarihi:"YOK", (matchedProject != null) ? matchedProject.Cari_ünvanı : "YOK", (matchedProject != null) ? matchedProject.EFatura_ID : "YOK",urun.totalMeblag,(matchedProject!=null)?matchedProject.Yekün:0);
             }
 
             advancedDataGridView1.DataSource = table;
@@ -82,19 +82,31 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             {
                 DataGridViewRow row = advancedDataGridView1.Rows[i];
                 string belgeNo = row.Cells[4].Value.ToString();
-
+                string meblağ = row.Cells[5].Value.ToString();
+                string yekün = row.Cells[6].Value.ToString();
+                meblağ = RemoveDecimalPart(meblağ);
+                yekün = RemoveDecimalPart(yekün);
                 // Eşleşen satırları yeşil yap
-                if (belgeNo == "YOK")
+
+                if (belgeNo == "YOK" || meblağ != yekün)
                 {
                     foreach (DataGridViewCell cell in row.Cells)
                     {
                         cell.Style.BackColor = Color.Red;
                     }
                 }
+
             }
-
         }
-
+        private string RemoveDecimalPart(string value)
+        {
+            if (value.Contains(","))
+            {
+                int index = value.IndexOf(",");
+                return value.Substring(0, index);
+            }
+            return value;
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             try
@@ -135,9 +147,10 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                         {
                             Faturalar fatura = new Faturalar
                             {
-                                TARİH = row["TARİH"].ToString(),
-                                BELGE_TÜRÜ = row["BELGE TÜRÜ"].ToString(),
-                                BELGE_NO = row["BELGE NO"].ToString()
+                                Belge_tarihi = row["Belge tarihi"].ToString(),
+                                Cari_ünvanı = row["Cari ünvanı"].ToString(),
+                                EFatura_ID = row["EFatura ID"].ToString(),
+                                Yekün = row["Yekün"].ToString()
                             };
 
                             FAAturaList.Add(fatura);

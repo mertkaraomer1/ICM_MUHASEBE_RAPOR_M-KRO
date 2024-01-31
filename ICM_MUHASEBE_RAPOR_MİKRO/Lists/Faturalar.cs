@@ -9,14 +9,16 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Lists
 {
     public class Faturalar
     {
-        [Description("TARİH")]
-        public string TARİH { get; set; }
+        [Description("EFatura ID")]
+        public string EFatura_ID { get; set; }
 
-        [Description("BELGE TÜRÜ")]
-        public string BELGE_TÜRÜ  { get; set; }
+        [Description("Belge tarihi")]
+        public string Belge_tarihi  { get; set; }
 
-        [Description("BELGE NO")]
-        public string? BELGE_NO { get; set; }
+        [Description("Cari ünvanı")]
+        public string? Cari_ünvanı { get; set; }
+        [Description("Yekün")]
+        public string? Yekün { get; set; }
 
     }
 }
