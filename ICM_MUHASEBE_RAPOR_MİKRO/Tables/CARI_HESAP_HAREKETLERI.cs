@@ -16,5 +16,6 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Tables
         public string cha_belge_no {  get; set; }
         public byte cha_evrak_tip { get; set; }
         public int cha_evrakno_sira { get; set; }
+        public DateTime cha_belge_tarih { get; set; }
     }
 }

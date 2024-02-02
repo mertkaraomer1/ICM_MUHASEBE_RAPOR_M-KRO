@@ -64,7 +64,10 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                     stok => stok.sth_fat_uid,
                     cari => cari.cha_Guid,
                     (stok, cari) => new { Stok = stok, Cari = cari }
-                ).Where(x => x.Cari.cha_belge_no.StartsWith("I1E")).Select(x => new
+                ).Where(x =>
+            (x.Cari.cha_belge_tarih >= selectedDate && x.Cari.cha_belge_tarih < selectedDate1) ||
+                             (x.Cari.cha_belge_tarih >= selectedDate && x.Cari.cha_belge_tarih < selectedDate1))
+                .Select(x => new
                 {
                     x.Stok.sth_fat_uid,
                     x.Stok.sth_miktar,
