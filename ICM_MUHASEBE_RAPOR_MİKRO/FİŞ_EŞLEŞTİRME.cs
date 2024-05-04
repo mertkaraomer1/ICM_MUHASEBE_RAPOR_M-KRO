@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using ICM_MUHASEBE_RAPOR_MİKRO.Lists;
 using System.Data.OleDb;
+using Microsoft.Office.Interop.Excel;
 
 namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
 {
@@ -12,7 +13,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             dbContext = new MyDbContext();
             InitializeComponent();
         }
-        DataTable table = new DataTable();
+        System.Data.DataTable table = new System.Data.DataTable();
         // Manually map DataTable to List<Faturalar>
         List<Faturalar> FAAturaList = new List<Faturalar>();
         private void button2_Click(object sender, EventArgs e)
@@ -65,7 +66,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             advancedDataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
 
             // Özel bir yazı tipi tanımlayın
-            Font baslikYaziTipi = new Font("Arial", 10, FontStyle.Regular);
+            System.Drawing.Font baslikYaziTipi = new System.Drawing.Font("Arial", 10, FontStyle.Regular);
 
             // DataGridView başlık satırının yazı tipini ayarlayın
             advancedDataGridView1.ColumnHeadersDefaultCellStyle.Font = baslikYaziTipi;
@@ -135,7 +136,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                     using (OleDbDataAdapter da = new OleDbDataAdapter(komut))
                     {
                         // Grid'imiz için bir DataTable oluşturuyoruz.
-                        DataTable data = new DataTable();
+                        System.Data.DataTable data = new System.Data.DataTable();
 
                         // DataAdapter'da ki verileri data adındaki DataTable'a dolduruyoruz.
                         da.Fill(data);
@@ -186,7 +187,14 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                 DataRow dataRow = dt.NewRow();
                 foreach (DataGridViewCell cell in row.Cells)
                 {
-                    dataRow[cell.ColumnIndex] = cell.Value;
+                    if (cell.Value != null) // Hücre değeri null değilse
+                    {
+                        dataRow[cell.ColumnIndex] = cell.Value;
+                    }
+                    else if (cell is DataGridViewCheckBoxCell) // CheckBox hücresi ise
+                    {
+                        dataRow[cell.ColumnIndex] = (cell.Value != null && (bool)cell.Value) ? "True" : "False"; // CheckBox değeri null değilse ve true ise "True" olarak ayarla, değilse "False" olarak ayarla
+                    }
                 }
                 dt.Rows.Add(dataRow);
             }
@@ -196,10 +204,10 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
             excelApp.Visible = true;
 
             // Yeni bir Excel çalışma kitabı oluşturun
-            Microsoft.Office.Interop.Excel.Workbook workbook = excelApp.Workbooks.Add(Type.Missing);
-            Microsoft.Office.Interop.Excel.Worksheet worksheet = (Microsoft.Office.Interop.Excel.Worksheet)workbook.Sheets[1];
+            Workbook workbook = excelApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
+            _Worksheet worksheet = (_Worksheet)workbook.Worksheets[1];
 
-            // DataTable'ı Excel çalışma sayfasına aktarın (tablo başlıklarını da dahil etmek için)
+            // DataTable'ı Excel çalışma sayfasına aktarın
             int rowIndex = 1;
 
             // Başlıkları yaz
@@ -215,6 +223,8 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                 rowIndex++;
                 for (int j = 0; j < dt.Columns.Count; j++)
                 {
+                    // Metin olarak aktar
+                    worksheet.Cells[rowIndex, j + 1].NumberFormat = "@";
                     worksheet.Cells[rowIndex, j + 1] = dt.Rows[i][j].ToString();
                 }
             }

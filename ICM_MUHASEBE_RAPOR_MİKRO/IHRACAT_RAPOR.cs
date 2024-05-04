@@ -1,5 +1,6 @@
 ﻿using ICM_MUHASEBE_RAPOR_MİKRO.Context;
 using ICM_MUHASEBE_RAPOR_MİKRO.Lists;
+using Microsoft.Office.Interop.Excel;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing.Drawing2D;
@@ -163,7 +164,14 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                 DataRow dataRow = dt.NewRow();
                 foreach (DataGridViewCell cell in row.Cells)
                 {
-                    dataRow[cell.ColumnIndex] = cell.Value;
+                    if (cell.Value != null) // Hücre değeri null değilse
+                    {
+                        dataRow[cell.ColumnIndex] = cell.Value;
+                    }
+                    else if (cell is DataGridViewCheckBoxCell) // CheckBox hücresi ise
+                    {
+                        dataRow[cell.ColumnIndex] = (cell.Value != null && (bool)cell.Value) ? "True" : "False"; // CheckBox değeri null değilse ve true ise "True" olarak ayarla, değilse "False" olarak ayarla
+                    }
                 }
                 dt.Rows.Add(dataRow);
             }
@@ -173,10 +181,10 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
             excelApp.Visible = true;
 
             // Yeni bir Excel çalışma kitabı oluşturun
-            Microsoft.Office.Interop.Excel.Workbook workbook = excelApp.Workbooks.Add(Type.Missing);
-            Microsoft.Office.Interop.Excel.Worksheet worksheet = (Microsoft.Office.Interop.Excel.Worksheet)workbook.Sheets[1];
+            Workbook workbook = excelApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
+            _Worksheet worksheet = (_Worksheet)workbook.Worksheets[1];
 
-            // DataTable'ı Excel çalışma sayfasına aktarın (tablo başlıklarını da dahil etmek için)
+            // DataTable'ı Excel çalışma sayfasına aktarın
             int rowIndex = 1;
 
             // Başlıkları yaz
@@ -192,6 +200,8 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                 rowIndex++;
                 for (int j = 0; j < dt.Columns.Count; j++)
                 {
+                    // Metin olarak aktar
+                    worksheet.Cells[rowIndex, j + 1].NumberFormat = "@";
                     worksheet.Cells[rowIndex, j + 1] = dt.Rows[i][j].ToString();
                 }
             }

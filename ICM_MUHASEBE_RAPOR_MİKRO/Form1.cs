@@ -18,7 +18,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
 
             SetCircularRegion(button1);
             SetCircularRegion(button2);
-            SetCircularRegion(button3);
+
         }
 
 
