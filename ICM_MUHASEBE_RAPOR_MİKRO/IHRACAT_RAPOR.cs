@@ -65,8 +65,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
                     cari => cari.cha_Guid,
                     (stok, cari) => new { Stok = stok, Cari = cari }
                 ).Where(x =>
-            (x.Cari.cha_belge_tarih >= selectedDate && x.Cari.cha_belge_tarih < selectedDate1) ||
-                             (x.Cari.cha_belge_tarih >= selectedDate && x.Cari.cha_belge_tarih < selectedDate1))
+            x.Cari.cha_belge_tarih >= selectedDate && x.Cari.cha_belge_tarih <= selectedDate1)
                 .Select(x => new
                 {
                     x.Stok.sth_fat_uid,
@@ -100,8 +99,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO
 
             var ihracatraporu = dbContext.IHRACAT_DOSYALARI
                 .Where(x =>
-            (x.ihr_create_date >= selectedDate && x.ihr_create_date < selectedDate1) ||
-                             (x.ihr_create_date >= selectedDate && x.ihr_create_date < selectedDate1))
+            x.ihr_create_date >= selectedDate && x.ihr_create_date <= selectedDate1)
                 .AsEnumerable() // Bring data into memory
                 .Join(result,
                     stok => stok.ihr_Satici,
