@@ -171,43 +171,42 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            // DataGridView'deki verileri bir DataTable'a kopyalayın
             System.Data.DataTable dt = new System.Data.DataTable();
 
+            // DataGridView'deki sütunları DataTable'a kopyala
             foreach (DataGridViewColumn column in advancedDataGridView1.Columns)
             {
-                // Eğer ValueType null ise, varsayılan bir veri türü kullanabilirsiniz.
                 Type columnType = column.ValueType ?? typeof(string);
                 dt.Columns.Add(column.HeaderText, columnType);
             }
 
-            // Satırları ekle
+            // DataGridView'deki satırları DataTable'a ekle
             foreach (DataGridViewRow row in advancedDataGridView1.Rows)
             {
                 DataRow dataRow = dt.NewRow();
                 foreach (DataGridViewCell cell in row.Cells)
                 {
-                    if (cell.Value != null) // Hücre değeri null değilse
+                    if (cell.Value != null)
                     {
                         dataRow[cell.ColumnIndex] = cell.Value;
                     }
-                    else if (cell is DataGridViewCheckBoxCell) // CheckBox hücresi ise
+                    else if (cell is DataGridViewCheckBoxCell)
                     {
-                        dataRow[cell.ColumnIndex] = (cell.Value != null && (bool)cell.Value) ? "True" : "False"; // CheckBox değeri null değilse ve true ise "True" olarak ayarla, değilse "False" olarak ayarla
+                        dataRow[cell.ColumnIndex] = (cell.Value != null && (bool)cell.Value) ? "True" : "False";
                     }
                 }
                 dt.Rows.Add(dataRow);
             }
 
-            // Excel uygulamasını başlatın
+            // Excel uygulamasını başlat
             Microsoft.Office.Interop.Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
             excelApp.Visible = true;
 
-            // Yeni bir Excel çalışma kitabı oluşturun
+            // Yeni bir Excel çalışma kitabı oluştur
             Workbook workbook = excelApp.Workbooks.Add(XlWBATemplate.xlWBATWorksheet);
             _Worksheet worksheet = (_Worksheet)workbook.Worksheets[1];
 
-            // DataTable'ı Excel çalışma sayfasına aktarın
+            // DataTable'ı Excel çalışma sayfasına aktar
             int rowIndex = 1;
 
             // Başlıkları yaz
@@ -217,7 +216,7 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                 worksheet.Cells[1, j + 1].Font.Bold = true;
             }
 
-            // Verileri yaz
+            // Verileri ve renkleri yaz
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 rowIndex++;
@@ -226,6 +225,13 @@ namespace ICM_MUHASEBE_RAPOR_MİKRO.Context
                     // Metin olarak aktar
                     worksheet.Cells[rowIndex, j + 1].NumberFormat = "@";
                     worksheet.Cells[rowIndex, j + 1] = dt.Rows[i][j].ToString();
+
+                    // Hücre rengini ayarla
+                    if (advancedDataGridView1.Rows[i].Cells[j].Style.BackColor != Color.Empty)
+                    {
+                        worksheet.Cells[rowIndex, j + 1].Interior.Color =
+                            ColorTranslator.ToOle(advancedDataGridView1.Rows[i].Cells[j].Style.BackColor);
+                    }
                 }
             }
         }
